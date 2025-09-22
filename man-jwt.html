@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>การทำ JWT Token</title>
+</head>
+<body>
+
+    <h1>ขั้นตอนการทำ JWT Token ในโปรเจค</h1>
+
+    <p>JSON Web Token (JWT) เป็นมาตรฐานโอเพนซอร์ส (RFC 7519) ที่ใช้อธิบายวิธีการส่งข้อมูลระหว่างผู้ที่เกี่ยวข้องอย่างปลอดภัยในรูปแบบของออบเจกต์ JSON. ข้อมูลนี้สามารถตรวจสอบและเชื่อถือได้เนื่องจากมีการลงนามด้วยกุญแจส่วนตัว (private key) หรือใช้ Shared Secret.</p>
+
+    <h2>ส่วนประกอบของ JWT</h2>
+    <p>JWT ประกอบด้วยสามส่วนคั่นด้วยจุด (.) ได้แก่:</p>
+    <ol>
+        <li><strong>Header:</strong> ระบุประเภทของโทเค็น (JWT) และอัลกอริทึมการเข้ารหัสที่ใช้ (เช่น HMAC SHA256 หรือ RSA)</li>
+        <li><strong>Payload:</strong> ส่วนนี้มี "Claims" หรือข้อมูลเกี่ยวกับ Entity (เช่น ผู้ใช้) และข้อมูลเพิ่มเติม (metadata)</li>
+        <li><strong>Signature:</strong> ส่วนนี้ใช้ในการตรวจสอบความถูกต้องของโทเค็น โดยจะถูกสร้างขึ้นจากการนำ Header และ Payload มารวมกันแล้วเข้ารหัสด้วย Secret Key</li>
+    </ol>
+
+    <h2>ขั้นตอนการนำ JWT Token มาใช้ในโปรเจค</h2>
+
+    <h3>1. การติดตั้งไลบรารี JWT</h3>
+    <p>คุณจะต้องติดตั้งไลบรารี JWT ที่เหมาะสมกับภาษาโปรแกรมหรือเฟรมเวิร์คที่คุณใช้ ตัวอย่างเช่น:</p>
+    <ul>
+        <li>สำหรับ PHP (Laravel/Lumen): composer require tymon/jwt-auth</li>
+        <li>สำหรับ Node.js: npm install jsonwebtoken</li>
+        <li>สำหรับ Python (Django/Flask): pip install PyJWT</li>
+        <li>สำหรับ Ruby (Rails): gem install jwt</li>
+    </ul>
+    <p>อ้างอิงจากเอกสารของไลบรารีที่คุณเลือกสำหรับการติดตั้งและการตั้งค่าเพิ่มเติม</p>
+
+    <h3>2. การกำหนดค่า (Configuration)</h3>
+    <p>หลังจากการติดตั้ง คุณจะต้องตั้งค่าไลบรารี JWT ซึ่งมักจะเกี่ยวข้องกับการกำหนด Secret Key. Secret Key นี้จะใช้ในการลงนาม (Sign) และยืนยัน (Verify) โทเค็น และควรเก็บไว้อย่างปลอดภัย.</p>
+
+    <h3>3. การออก JWT (Issuing JWT)</h3>
+    <p>เมื่อผู้ใช้เข้าสู่ระบบสำเร็จ (ผ่านการตรวจสอบชื่อผู้ใช้และรหัสผ่าน) คุณจะสร้าง JWT และส่งกลับไปให้ไคลเอนต์ (เช่น เว็บเบราว์เซอร์ หรือแอปพลิเคชันมือถือ) ใน Payload คุณสามารถใส่ข้อมูลผู้ใช้ที่จำเป็น เช่น ID ผู้ใช้ หรือบทบาท (Role) ของผู้ใช้</p>
+    <pre><code class="language-javascript">// ตัวอย่างใน Node.js ด้วย jsonwebtoken
+const jwt = require('jsonwebtoken');
+const payload = { userId: user._id, role: user.role };
+const secret = 'your-secret-key'; // ใช้ Secret Key ที่ปลอดภัย
+const token = jwt.sign(payload, secret, { expiresIn: '1h' }); // กำหนดเวลาหมดอายุ
+// ส่ง token กลับไปยังไคลเอนต์</code></pre>
+
+      <h3>ขั้นตอนการติดตั้ง JWT Token ในโปรเจกต์</h3>
+      <ol>
+        <li>
+          <b>ติดตั้งแพ็กเกจ JWT:</b> ใช้ Composer เพื่อติดตั้งแพ็กเกจ JWT สำหรับ Laravel
+          <pre><code>composer require tymon/jwt-auth</code></pre>
+        </li>
+        <li>
+          <b>ตั้งค่า Provider และ Alias:</b> เพิ่ม Service Provider และ Facade ในไฟล์ <code>config/app.php</code>
+          <pre><code>'providers' => [
+          // ...
+          Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+          ],
+
+          'aliases' => [
+              // ...
+              'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
+              'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+          ],
+          </code></pre>
+        </li>
+        <li>
+          <b>เผยแพร่ไฟล์การตั้งค่า:</b> รันคำสั่ง Artisan เพื่อเผยแพร่ไฟล์ <code>jwt.php</code>
+          <pre><code>php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"</code></pre>
+        </li>
+        <li>
+          <b>สร้าง Secret Key:</b> สร้าง Secret Key สำหรับ JWT โดยใช้คำสั่ง Artisan
+          <pre><code>php artisan jwt:secret</code></pre>
+          <p>คำสั่งนี้จะสร้างค่า <code>JWT_SECRET</code> ในไฟล์ <code>.env</code> อัตโนมัติ</p>
+        </li>
+        <li>
+          <b>ตรวจสอบไฟล์ .env:</b> ตรวจสอบให้แน่ใจว่ามีบรรทัด <code>JWT_SECRET=...</code> อยู่ในไฟล์ <code>.env</code>
+        </li>
+        <li>
+          <b>พร้อมใช้งาน JWT ในโปรเจกต์:</b> สามารถใช้งาน JWT สำหรับการ Authentication ได้ทันที
+        </li>
+      </ol>
+    <h3>4. การส่ง JWT พร้อมกับคำขอ (Sending JWT with Requests)</h3>
+    <p>หลังจากที่ไคลเอนต์ได้รับ JWT แล้ว ไคลเอนต์ควรเก็บโทเค็นไว้อย่างปลอดภัย (เช่น ใน Local Storage ของเว็บเบราว์เซอร์ หรือ SharedPreferences ในแอปพลิเคชันมือถือ) และส่งโทเค็นนี้ไปพร้อมกับทุกคำขอ (Request) ไปยังเซิร์ฟเวอร์ โดยทั่วไปจะส่งไปใน HTTP Header ที่ชื่อว่า <code>Authorization</code> ในรูปแบบ <code>Bearer &lt;token&gt;</code></p>
+    <pre><code class="language-javascript">// ตัวอย่างการส่ง token ใน header ด้วย JavaScript
+fetch('/api/protected-route', {
+  headers: {
+    'Authorization': 'Bearer ' + token
+  }
+});</code></pre>
+
+    <h3>5. การตรวจสอบ JWT (Verifying JWT)</h3>
+    <p>เมื่อเซิร์ฟเวอร์ได้รับคำขอที่มี JWT มาด้วย ก่อนที่จะประมวลผลคำขอ เซิร์ฟเวอร์จะต้องตรวจสอบความถูกต้องของ JWT ก่อน โดยใช้ Secret Key เดียวกันกับที่ใช้ในการออกโทเค็น หากโทเค็นถูกต้องและยังไม่หมดอายุ เซิร์ฟเวอร์ก็จะถือว่าคำขอนี้มาจากผู้ใช้ที่ตรวจสอบสิทธิ์แล้ว และสามารถประมวลผลคำขอต่อไปได้</p>
+    <pre><code class="language-javascript">// ตัวอย่างใน Node.js ด้วย jsonwebtoken
+const jwt = require('jsonwebtoken');
+const token = req.headers.authorization.split(' ')[1]; // ดึง token ออกจาก header
+const secret = 'your-secret-key'; // Secret Key เดียวกัน
+jwt.verify(token, secret, (err, decoded) => {
+  if (err) {
+    // โทเค็นไม่ถูกต้องหรือไม่สามารถตรวจสอบได้
+    res.sendStatus(403);
+  } else {
+    // โทเค็นถูกต้อง
+    req.user = decoded; // สามารถเข้าถึงข้อมูลใน payload ได้
+    next(); // ไปยัง middleware หรือ route ต่อไป
+  }
+});</code></pre>
+
+    <h3>6. การจัดการสถานะ (State Management)</h3>
+    <p>JWT เป็น Stateless หมายความว่าเซิร์ฟเวอร์ไม่จำเป็นต้องเก็บสถานะของโทเค็นแต่ละอัน ซึ่งทำให้สามารถ Scale ได้ง่าย อย่างไรก็ตาม คุณอาจต้องการใช้ระบบแคช (Cache) หรือฐานข้อมูลเพื่อจัดเก็บโทเค็นที่ถูกยกเลิก (Blacklist) ในกรณีที่ผู้ใช้ออกจากระบบ (Logout) หรือมีการเปลี่ยนแปลงข้อมูลสำคัญเกี่ยวกับผู้ใช้</p>
+
+    <h2>ข้อดีของ JWT</h2>
+    <ul>
+        <li><strong>Stateless:</strong> เซิร์ฟเวอร์ไม่จำเป็นต้องเก็บสถานะของผู้ใช้ ทำให้ Scale ได้ง่าย</li>
+        <li><strong>Compact:</strong> JWT มีขนาดเล็กพอที่จะส่งผ่าน URL, POST parameter, หรือใน HTTP Header</li>
+        <li><strong>Secure:</strong> เมื่อลงนามแล้ว ข้อมูลใน JWT จะไม่สามารถเปลี่ยนแปลงได้โดยไม่ทำให้ Signature ไม่ถูกต้อง</li>
+        <li><strong>Widely Used:</strong> JWT เป็นมาตรฐานที่ได้รับความนิยมและมีไลบรารีรองรับในหลายภาษาโปรแกรม</li>
+    </ul>
+
+    <h2>ข้อควรพิจารณา</h2>
+    <ul>
+        <li><strong>ความปลอดภัยของ Secret Key:</strong> Secret Key เป็นสิ่งสำคัญที่สุดในการรักษาความปลอดภัยของ JWT ควรเก็บไว้อย่างปลอดภัยและไม่เปิดเผย</li>
+        <li><strong>การจัดการโทเค็นที่ถูกยกเลิก (Blacklist):</strong> เนื่องจาก JWT เป็น Stateless การยกเลิกโทเค็นทันทีที่ผู้ใช้ออกจากระบบจะต้องใช้กลไกเพิ่มเติม เช่น การเก็บโทเค็นที่ถูกยกเลิกไว้ใน Blacklist</li>
+        <li><strong>การใส่ข้อมูลที่ละเอียดอ่อนใน Payload:</strong> ไม่ควรใส่ข้อมูลที่ละเอียดอ่อนมากเกินไปใน Payload เนื่องจาก Payload ถูกเข้ารหัสแบบ Base64 ซึ่งสามารถถอดรหัสได้ง่าย (แต่ไม่สามารถแก้ไขได้)</li>
+    </ul>
+
+</body>
+</html>
