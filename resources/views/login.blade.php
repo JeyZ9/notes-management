@@ -3,33 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - MyNotes</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 400px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+        }
+        .login-card .card-header {
+            background-color: #fff;
+            border-bottom: none;
+            text-align: center;
+            padding-top: 2rem;
+            padding-bottom: 1rem;
+        }
+        .login-card .card-header h3 {
+            font-weight: bold;
+        }
+        .login-card .card-body {
+            padding: 2rem;
+        }
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #86b7fe;
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header"><h4>Login</h4></div>
-                    <div class="card-body">
-                        <form id="login-form">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control" id="password" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Login</button>
-                        </form>
-                        <div id="error-message" class="mt-3 text-danger"></div>
-                        <div class="mt-3">
-                            <p>Don't have an account? <a href="/register">Register here</a></p>
-                        </div>
-                    </div>
+    <div class="card login-card">
+        <div class="card-header">
+            <h3><i class="fas fa-book-open"></i> MyNotes Login</h3>
+            <p class="text-muted">Welcome back! Please login to your account.</p>
+        </div>
+        <div class="card-body">
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="email" placeholder="you@example.com" required>
                 </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" placeholder="Password" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </div>
+            </form>
+            <div id="error-message" class="mt-3 text-danger text-center"></div>
+            <div class="mt-4 text-center">
+                <p>Don't have an account? <a href="/register">Register here</a></p>
             </div>
         </div>
     </div>
@@ -61,7 +93,7 @@
 
                 if (data.access_token) {
                     localStorage.setItem('api_token', data.access_token);
-                    window.location.href = '/notes'; // Redirect to notes page on successful login
+                    window.location.href = '/notes';
                 } else {
                      errorMessage.textContent = 'Login failed: No token received.';
                 }

@@ -15,7 +15,7 @@ class NoteController extends Controller
     public function index()
     {
         $notes = Auth::user()->notes;
-        return response()->json($notes);
+        return response()->json(['data' => $notes]);
     }
 
     /**
@@ -30,7 +30,7 @@ class NoteController extends Controller
 
         $note = Auth::user()->notes()->create($validatedData);
 
-        return response()->json($note, 201);
+        return response()->json(['data' => $note], 201);
     }
 
     /**
@@ -41,7 +41,7 @@ class NoteController extends Controller
         if (Auth::id() !== $note->user_id) {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
-        return response()->json($note);
+        return response()->json(['data' => $note]);
     }
 
     /**
@@ -60,7 +60,7 @@ class NoteController extends Controller
 
         $note->update($validatedData);
 
-        return response()->json($note);
+        return response()->json(['data' => $note]);
     }
 
     /**
